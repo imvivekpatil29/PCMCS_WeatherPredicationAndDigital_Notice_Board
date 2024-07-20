@@ -1,0 +1,22 @@
+python
+pip install FLask
+pip install schedule
+pip install celery
+pip install Flask-SQLAlchemy
+pip install requests
+pip install apscheduler
+
+
+to run the development server run - python app.py
+
+to run ngrok = ngrok http localport
+
+ngrok setup
+
+download ngrok from website
+setup authtoken 
+setup environment variables
+restart 
+run commands
+
+https://ngrok.com/docs/agent/config/

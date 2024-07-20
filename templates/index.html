@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>College Notices</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap"
+      rel="stylesheet"
+    />
+    
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+
+    <style>
+      body,
+      html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        font-family: "Nunito", sans-serif;
+        font-optical-sizing: auto;
+        font-weight: 600;
+        font-style: normal;
+      }
+
+      .container {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        
+      }
+
+      .background-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("https://img.jagranjosh.com/images/2023/September/2192023/Campus_Viewd2.jpg");
+        background-size: cover;
+        background-position: center;
+        filter: opacity(0.4);
+        /* Adjust opacity by changing the value (0.5 in this case) */
+      }
+
+      .weather-container {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        width: 100%;
+        transition: opacity 0.5s;
+        /* Add transition effect */
+      }
+
+      .weather-info {
+        text-align: center;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin: 10px;
+        width: 250px;
+      }
+
+      .notice-info {
+        text-align: center;
+        background-color: #fff;
+        border-radius: 5px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin: 10px;
+      }
+
+      .notices-section {
+        width: 100%;
+        padding: 20px;
+        box-sizing: border-box;
+        overflow-y: auto;
+        /* Enable vertical scroll if needed */
+      }
+
+      .notice {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 10px;
+        margin-bottom: 10px;
+        background-color: white;
+      }
+
+      .logo1 {
+        /* Set the width of the image to a percentage of its parent element */
+        width: 10%;
+        /* Set the height to auto to maintain aspect ratio */
+        height: auto;
+        /* Center the image horizontally */
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .headline {
+        /* Use flexbox for easy alignment */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        top: 0;
+      }
+      
+      .logo, .logo2 {
+        /* Adjust the size of the logos as needed */
+        width: 100px;
+        height: auto;
+      }
+      
+      h4, h1 {
+        /* Add some margin for spacing */
+        margin: 0 20px;
+      }
+      </style>
+    </style>
+    
+  </head>
+
+  <body>
+    <div class="background-image"></div>
+<div class="container" id="container">
+      <div class="headline">
+        <img src="https://mgv.kbhgroup.in/images/logo.png" class="logo" alt="placeholder" />
+        <div>
+        <h4 style="text-align:center !important;">Mahatma Gandhi Vidyamandir's</h4>
+        <h1>Panchavati College of Management and Computer Science, Nashik</h1>
+        </div>
+        <img src="https://mgvlvhsr.kbhgroup.in/images/Loknete.png" class="logo2" alt="placeholder" />
+      </div>
+      <div class="weather-container" id="weather-container">
+        <!-- Weather information -->
+
+        <div>
+          {% if error_message %}
+          <p>{{ error_message }}</p>
+          {% else %}
+          <img
+            class="weather-img"
+            src="{{ 'https:' + weather_data['current']['condition']['icon'] }}"
+            alt="{{ weather_data['current']['condition']['text'] }}"
+          />
+
+          <p class="weather-info">
+            Last Updated: {{ weather_data['current']['last_updated'] }}
+          </p>
+          <p class="weather-info">
+            Location: {{ weather_data['location']['name'] }}, {{
+            weather_data['location']['country'] }}
+          </p>
+          {% endif %}
+        </div>
+        <div>
+          <p class="weather-info">
+            Looks {{ weather_data['current']['condition']['text'] }}
+          </p>
+          <p class="weather-info">
+            Temperature: {{ weather_data['current']['temp_c'] }}°C
+          </p>
+          <!-- <p>Condition Code: {{ weather_data['current']['condition']['code'] }}</p> -->
+          <p class="weather-info">
+            Wind Speed: {{ weather_data['current']['wind_kph'] }} km/h
+          </p>
+        </div>
+        <div>
+          <p class="weather-info">
+            Wind Direction: {{ weather_data['current']['wind_dir'] }}
+          </p>
+          <p class="weather-info">
+            Humidity: {{ weather_data['current']['humidity'] }}%
+          </p>
+          <p class="weather-info">UV: {{ weather_data['current']['uv'] }}</p>
+        </div>
+      </div>
+
+      <div class="notices-section" id="notices-section">
+        <h1>Notice Board</h1>
+        <ul>
+          {% for notice in notices %}
+          <li class="notice notice-info">
+            <h3>{{ notice.title }}</h3>
+            <p>{{ notice.content }}</p>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <script>
+      window.onload = function () {
+        var noticesSection = document.getElementById("notices-section");
+        var weatherContainer = document.getElementById("weather-container");
+
+        if (noticesSection.scrollHeight > window.innerHeight) {
+          // Hide weather section if notices exceed viewport height
+          weatherContainer.style.opacity = "0";
+
+          weatherContainer.style.display = "none";
+        }
+      };
+    </script>
+  </body>
+</html>

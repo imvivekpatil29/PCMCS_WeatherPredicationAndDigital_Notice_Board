@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Information</title>
+    <meta http-equiv="refresh" content="3600">
+</head>
+<body>
+    {% if error_message %}
+        <p>{{ error_message }}</p>
+    {% else %}
+        <h1>Weather Information</h1>
+        <p>Last Updated: {{ weather_data['current']['last_updated'] }}</p>
+        <p>Location: {{ weather_data['location']['name'] }}, {{ weather_data['location']['country'] }}</p>
+        <p>Temperature: {{ weather_data['current']['temp_c'] }}°C</p>
+        <p>Condition: {{ weather_data['current']['condition']['text'] }}</p>
+        <img src="{{ 'https:' + weather_data['current']['condition']['icon'] }}" alt="{{ weather_data['current']['condition']['text'] }}">
+        <p>Condition Code: {{ weather_data['current']['condition']['code'] }}</p>
+        <p>Wind Speed: {{ weather_data['current']['wind_kph'] }} km/h</p>
+        <p>Wind Direction: {{ weather_data['current']['wind_dir'] }}</p>
+        <p>Humidity: {{ weather_data['current']['humidity'] }}%</p>
+        <p>UV: {{ weather_data['current']['uv'] }}</p>
+    {% endif %}
+    <h2>Notice Board</h2>
+    <ul>
+        {% for notice in notices %}
+        <li>{{ notice.title }} - {{ notice.content }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notices</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1, h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        #add-notice-section {
+            width: 90%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        #add-notice-form {
+            flex-grow: 1;
+            margin-right: 20px;
+        }
+
+        #add-notice-form label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+        }
+
+        #add-notice-form input[type="text"],
+        #add-notice-form textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
+
+        #add-notice-form button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #add-notice-form button:hover {
+            background-color: #0056b3;
+        }
+
+        #notices-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            width: 90%;
+            /* max-width: 600px; */
+        }
+
+        #notices-list li {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .edit-icon, .delete-icon {
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        p.error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h2>Add Notice</h2>
+    <div id="add-notice-section">
+        
+        <form id="add-notice-form">
+            <label for="title">Title:</label><br>
+            <input type="text" id="title" name="title" required><br>
+            <label for="content">Content:</label><br>
+            <textarea id="content" name="content" required></textarea><br>
+            <button type="submit">Add Notice</button>
+        </form>
+    </div>
+
+    <h1>Notices</h1>
+    <ul id="notices-list">
+    </ul>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to fetch and display notices
+            function fetchNotices() {
+                fetch('/notices')
+                    .then(response => response.json())
+                    .then(notices => {
+                        const noticesList = document.getElementById('notices-list');
+                        noticesList.innerHTML = '';
+                        notices.forEach(notice => {
+                            const noticeItem = document.createElement('li');
+                            noticeItem.innerHTML = `
+                                <h3>${notice.title}</h3>
+                                <p>${notice.content}</p>
+                                <span class="edit-icon" onclick="editNotice(${notice.id}, '${notice.title}', '${notice.content}')">&#9998; Edit Notice</span>
+                                <span class="delete-icon" onclick="deleteNotice(${notice.id})">&#128465; Delete Notice</span>
+                            `;
+                            noticesList.appendChild(noticeItem);
+                        });
+                    });
+            }
+
+            // Function to add a notice
+            document.getElementById('add-notice-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+                const formData = new FormData(this);
+                fetch('/admin/add_notice', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (response.ok) {
+                        fetchNotices(); // Refresh notices list
+                        document.getElementById('add-notice-form').reset(); // Reset form
+                        alert('Notice added successfully');
+                    } else {
+                        alert('Failed to add notice');
+                    }
+                });
+            });
+
+            // Function to edit a notice
+            window.editNotice = function(id, title, content) {
+                const newTitle = prompt('Enter new title:', title);
+                const newContent = prompt('Enter new content:', content);
+                if (newTitle !== null && newContent !== null) {
+                    fetch(`/admin/edit_notice/${id}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ title: newTitle, content: newContent })
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            fetchNotices(); // Refresh notices list
+                            alert('Notice updated successfully');
+                        } else {
+                            alert('Failed to update notice');
+                        }
+                    });
+                }
+            };
+
+            // Function to delete a notice
+            window.deleteNotice = function(id) {
+                if (confirm('Are you sure you want to delete this notice?')) {
+                    fetch('/admin/delete_notice/' + id, {
+                        method: 'POST'
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            fetchNotices(); // Refresh notices list
+                            alert('Notice deleted successfully');
+                        } else {
+                            alert('Failed to delete notice');
+                        }
+                    });
+                }
+            };
+
+            // Initial fetch to display notices
+            fetchNotices();
+        });
+    </script>
+</body>
+</html>
